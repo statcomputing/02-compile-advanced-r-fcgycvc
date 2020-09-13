@@ -1,0 +1,103 @@
+---
+title: "Howework 2, STAT 5361"
+author: "Yicheng Guo"
+output:
+  pdf_document: 
+      latex_engine: xelatex
+  html_document: default
+  
+---
+
+
+# Step1
+- (1) Use "git clone" to download the source file from "https://github.com/hadley/adv-r.git". </br>
+- (2) Upgrade RStudio. Install R devtools(a lot packages were added in this process) by install.packages("devtools"). Then Package dependencies using `devtools::install_github("hadley/sloop")` and `devtools::install_github("hadley/emo")`.
+- (3) Download R Bookdown by `devtools::install_github("rstudio/bookdown")`. Use `bookdown::render_book("index.Rmd", output_format = "bookdown::pdf_book")` to compile the book.
+
+# Step2
+During the building process, I've met several problems, most of them are package missing. The followings are the errors I've met and how I solved them. 
+
+## (1) Warning in installing devtools and bookdown
+- Example: Wrong: package ‘cli’ was installed before R 4.0.0: please re-install it
+- Solve: install.packages("cli")
+Similar cases happen with package "assertthat" "crayon" "fansi" "glue" "digest" "R6"  ...  I tried updated all packages via Tools menu, after which I still have to upgrade these packages manually. Then there is another warning message that I have to download Rtools from `https://cran.r-project.org/bin/windows/Rtools/.` to finish step1-1 . </br>
+At installing bookdown I have to add "xfun" package, for which I even need to download a source to local disk, then install the package.
+At executing `bookdown::render_book("index.Rmd", output_format = "bookdown::pdf_book")`, similar problems happened for package "dplyr" "pkgconfig"  "lobstr" "gtable" "munsell" "colorspace" "utf8" "farver"
+"labeling" "viridisLite" "DBI" "RSQLite" "zeallot" "dbplyr" "RColorBrewer" "profvis" "bench" "ggbeeswarm"
+
+Note: some of the package problems are because the version is before R-4.0.0. I have to renew manually.
+
+
+## (2) Warnings in
+`bookdown::render_book("index.Rmd", output_format = "bookdown::pdf_book")`·
+
+### 1) Error in cat:
+This error is encountered:
+```
+Quitting from lines 223-235 (Introduction.Rmd) 
+Error in cat(paste0(contributors$desc, collapse = ", ")) : 
+  '<86>,<4e>A (\@kfeng123), Karl Forner (\@kforner), Kirill Sevastyanenko (\@kirillseva), Brian Knaus (\@knausb), Kirill M眉ller (\@krlmlr), Kriti Sen Sharma (\@ksens), Kai Tang (鍞愭伜锛<89>,NA (\@ktang), Kevin Wright (\@kwstat), suo.lawrence.liu@gmail.com (\@Lawrence-Liu), \@ldfmrails, Kevin Kainan Li (\@legendre6891), Rachel Severson (\@leighseverson), Laurent Gatto (\@lgatto), C. Jason Liang (\@liangcj), Steve Lianoglou (\@lianos), Yongfu Liao (\@liao961120), Likan (\@likanzhan), \@lindbrook, Lingbing Feng (\@Lingbing), Marcel Ramos (\@LiNk-NY), Zhongpeng Lin (\@linzhp), Lionel Henry (\@lionel-), Llu铆s (\@llrs), myq (\@lrcg), Luke W Johnston (\@lwjohnst86), Kevin Lynagh (\@lynaghk), \@MajoroMask, Malcolm Barrett (\@malcolmbarrett), \@mannyishere, \@mascaretti, Matt (\@mattbaggott), Matthew Grogan (\@mattgrogan), \@matthewhillary, Matthieu Gomez (\@matthieugomez), Matt Malin (\@mattmalin), Mauro Lepore (\@maurolepore), Max Ghenis (\@MaxGhenis), Maximilian Held (\@maxheld83), M
+Calls: local ... withCallingHandlers -> withVisible -> eval -> eval -> cat
+```
+
+Solve: After checking Google, someone indicate that we can change the encoding to UTF-8. Open introduction.rmd and change line 224 to
+`contributors <- read.csv("contributors.csv", stringsAsFactors = FALSE, encoding = "UTF-8")`
+
+### 2) Warning message: In system(cmd) : 'make' not found
+
+This problem occured:
+
+```
+Warning message:
+In system(cmd) : 'make' not found
+Quitting from lines 77-84 (Rcpp.Rmd) 
+Error in sourceCpp(code = code, env = env, rebuild = rebuild, cacheDir = cacheDir,  : 
+  Error 1 occurred building shared library.
+Calls: local ... withVisible -> eval -> eval -> cppFunction -> sourceCpp
+
+Error in Rscript_render(f, render_args, render_meta, add1, add2) : 
+  Failed to compile Rcpp.Rmd
+
+Solve: There is a hint from the homework done by previous student.
+But I didn't find where to get access to the page of the photo. Therefore I searched Google. I know this is because rtools are not linked to RStudio.
+```
+
+I tried `Sys.setenv(PATH = paste("D:\\Rtools40/bin", Sys.getenv("PATH"), sep=";"))` and `Sys.setenv(BINPREF = "D:\\rtools40/mingw64/bin/")`, then setting environmental variable in windows directly like previous student, and even set R_HOME / R_USER as variables when RStudio can not recognize stat.dll in Original R library. I even tried content on https://cran.r-project.org/bin/windows/Rtools/ . Finally I succeeded. It might be either the windows setting or the final method or a combination of both that are working.
+
+### 3 ! LaTeX Error: Environment sidebar undefined. (NOT SOLVED)
+
+Note: Problem ""xelatex" not Found" is solved along with installation of packages in MiKTeX.
+
+This problem emerged when I finished fixing previous problem:
+
+```
+output file: References.knit.md
+
+"D:/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS _main.utf8.md --to latex --from markdown+autolink_bare_uris+tex_math_single_backslash --output _main.tex --self-contained --table-of-contents --toc-depth 2 --number-sections --highlight-style tango --pdf-engine xelatex --natbib --include-in-header "latex\preamble.tex" --include-before-body "latex\before_body.tex" --include-after-body "latex\after_body.tex" --lua-filter "D:/R-4.0.2/library/rmarkdown/rmd/lua/pagebreak.lua" --lua-filter "D:/R-4.0.2/library/rmarkdown/rmd/lua/latex-div.lua" --wrap preserve --top-level-division=chapter --lua-filter=latex/sidebar.lua --variable tables=yes --standalone -Mhas-frontmatter=false 
+! LaTeX Error: Environment sidebar undefined.
+```
+Error: LaTeX failed to compile _main.tex. See https://yihui.org/tinytex/r/#debugging for debugging tips. See _main.log for more info.
+
+Trial on amendment:
+- I tried `install.packages("pandocfilters")` or install the latest version of Pandoc in Windows, but failed. Then I install MiKTex and renew/install a lot packages in MiKTeX (especially the ones mentioned in _main.md ), but still failed. I remember 
+
+- I tried adding 
+```
+\newenvironment{sidebar}{%
+  \begin{textblock}{3.6}(1.5, 4.33)
+  \begin{flushright}
+  \obeycr
+}{%
+  \restorecr
+  \end{flushright}
+  \end{textblock}
+}
+```
+to _main.md under the sentence of `\renewenvironment{Shaded}{\begin{kframe}}{\end{kframe}}`. Failed.
+
+- Other trials, like restarting computer, restart softwares, reinstall every software in a ceteris paribus manner. Also I discuss this with one classmate. But I can still not solve it.
+I think the most reasonable cause is the upgrade of certain software (say, pandoc or LaTeX). It generates some unpredicted problem in package environment definition. However, since I am far from familiarity to TeX system, I have no idea where or which documents to fix.
+
+
+# Finalized Version 09/22/2020
+I have to say thanks to advice from Boyi Zhang that the CRAN is not enough to support rmarkdown He gave me a code  `devtools::install_github('rstudio/rmarkdown')` so that I can install all part of RMarkdown. After choosing installing all in the options, I successfully compiled the pdf version.
